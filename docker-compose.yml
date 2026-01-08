@@ -2,7 +2,7 @@ services:
   # Tu aplicación de Python
   app-goles:
     build: .
-    image: jenkins:latest
+    image: app-fase1:latest
     container_name: app-goles-container
     stdin_open: true # Permite la entrada de teclado
     tty: true        # Emula una terminal real
