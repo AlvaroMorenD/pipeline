@@ -1,12 +1,15 @@
-# Usamos una imagen ligera de Python
-FROM python:3.11-alpine
+FROM jenkins/jenkins:lts
+USER root
 
-# Definimos el directorio de trabajo dentro del contenedor
-WORKDIR /app
+# Instalación de dependencias y cliente de Docker con plugin Compose
+RUN apt-get update && apt-get install -y lsb-release curl
+RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
+  https://download.docker.com/linux/debian/gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
+  https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
 
-# Copiamos tu archivo específico al contenedor
-COPY ej1.py .
+RUN apt-get update && apt-get install -y docker-ce-cli docker-compose-plugin
 
-# Ejecutamos el script. 
-# El flag -u es para que los prints se vean al instante en la terminal
-CMD ["python", "-u", "ej1.py"]
+USER jenkins
