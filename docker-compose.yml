@@ -1,34 +1,25 @@
-services:
-  app-goles:
+ app-goles:
     build: .
-    image: app-fase1:latest
-    container_name: app-goles-container
+    image: fase1:latest
     stdin_open: true
     tty: true
-    volumes:
-      - .:/app
     networks:
       - jenkins-net
 
   jenkins:
-    build:
-      context: .
-      dockerfile: Dockerfile.jenkins
-    container_name: jenkins-server
-    privileged: true
-    user: root
+    image: jenkins/jenkins:lts
+    user: root 
     ports:
       - "8080:8080"
       - "50000:50000"
     volumes:
-      - jenkins_data:/var/jenkins_home
+      - ./jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - jenkins-net
 
 networks:
   jenkins-net:
-    driver: bridge
 
 volumes:
   jenkins_data:
