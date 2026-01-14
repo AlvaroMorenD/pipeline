@@ -1,17 +1,19 @@
 services:
-  # Tu aplicación de Python
   app-goles:
     build: .
     image: app-fase1:latest
     container_name: app-goles-container
-    stdin_open: true # Permite la entrada de teclado
-    tty: true        # Emula una terminal real
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
     networks:
       - jenkins-net
 
-  # Servidor de Jenkins
   jenkins:
-    image: jenkins/jenkins:lts
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
     container_name: jenkins-server
     privileged: true
     user: root
@@ -20,8 +22,6 @@ services:
       - "50000:50000"
     volumes:
       - jenkins_data:/var/jenkins_home
-      # Esta línea es opcional pero recomendada si quieres que Jenkins 
-      # pueda usar el Docker de tu máquina real:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - jenkins-net
