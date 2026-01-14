@@ -3,22 +3,38 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Descarga el código de GitHub
                 checkout scm
             }
         }
-         stage('Build Image') {
+        
+        stage('SonarQube Analysis') {
             steps {
-                // Construye la imagen de Docker usando el Dockerfile del repo
+                script {
+                    // Se asume que has configurado la herramienta 'SonarQube Scanner' en Jenkins
+                    def scannerHome = tool 'SonarQube Scanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=agenda-goles \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://sonarqube:9000"
+                    }
+                }
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                echo "Construyendo la imagen..."
                 sh 'docker build -t fase1:latest .'
             }
         }
+
         stage('Run Container') {
             steps {
-                // Prueba que el contenedor arranca
-                // Nota: Al ser un script interactivo, aquí solo verificamos que compile
+                echo "Desplegando contenedor..."
+                // Borramos el contenedor anterior si existe para evitar errores
+                sh 'docker rm -f test-container || true'
                 sh 'docker run --name test-container -d fase1:latest'
-                // sh 'docker stop test-container && docker rm test-container'
             }
         }
     }
