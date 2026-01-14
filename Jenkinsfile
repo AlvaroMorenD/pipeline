@@ -1,46 +1,25 @@
 pipeline {
     agent any
-
-    environment {
-        SERVICE_NAME = 'app-goles'
-    }
-
     stages {
         stage('Checkout') {
             steps {
+                // Descarga el código de GitHub
                 checkout scm
             }
         }
-
-        stage('Build Image') {
+         stage('Build Image') {
             steps {
-                echo "Construyendo la imagen de Docker usando Compose..."
-                // Usamos 'docker compose' sin guion para ser consistentes
-                sh "docker compose build ${SERVICE_NAME}"
+                // Construye la imagen de Docker usando el Dockerfile del repo
+                sh 'docker build -t fase1:latest .'
             }
         }
-
-        stage('Deploy App') {
+        stage('Run Container') {
             steps {
-                echo "Desplegando la aplicación..."
-                sh "docker compose up -d --force-recreate ${SERVICE_NAME}"
+                // Prueba que el contenedor arranca
+                // Nota: Al ser un script interactivo, aquí solo verificamos que compile
+                sh 'docker run --name test-container -d fase1:latest'
+                // sh 'docker stop test-container && docker rm test-container'
             }
-        }
-
-        stage('Verify') {
-            steps {
-                echo "Estado de los contenedores:"
-                sh 'docker ps'
-            }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Pipeline finalizado con éxito. La app está corriendo.'
-        }
-        failure {
-            echo '❌ El pipeline falló. Revisa la consola para más detalles.'
         }
     }
 }
